@@ -44,21 +44,7 @@ public class StripData {
 
     public ClassVisitor visitor(ClassVisitor delegate) {
         return new ClassVisitor(Opcodes.ASM9, delegate) {
-            @Override
-            public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
-                if (!fields.isEmpty() && fields.contains(new Member(name, Type.getType(descriptor)))) {
-                    return null;
-                }
-                return super.visitField(access, name, descriptor, signature, value);
-            }
-
-            @Override
-            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-                if (!methods.isEmpty() && methods.contains(new Member(name, Type.getMethodType(descriptor)))) {
-                    return null;
-                }
-                return super.visitMethod(access, name, descriptor, signature, exceptions);
-            }
+            String className;
 
             @Override
             public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
@@ -74,6 +60,7 @@ public class StripData {
                         interfaces = next > 0 ? Arrays.copyOf(interfaces, next) : null;
                     }
                 }
+                this.className = name;
                 super.visit(version, access, name, signature, superName, interfaces);
             }
 
@@ -83,6 +70,38 @@ public class StripData {
                     return null;
                 }
                 return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+            }
+
+            @Override
+            public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
+                if (!fields.isEmpty() && fields.contains(new Member(name, Type.getType(descriptor)))) {
+                    return null;
+                }
+                return super.visitField(access, name, descriptor, signature, value);
+            }
+
+            @Override
+            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+                if (!methods.isEmpty() && methods.contains(new Member(name, Type.getMethodType(descriptor)))) {
+                    return null;
+                }
+                if (!fields.isEmpty() && (name.equals("<init>") || name.equals("<clinit>"))) {
+                    return new MethodVisitor(api, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+                        @Override
+                        public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
+                            if (
+                                opcode == Opcodes.PUTFIELD &&
+                                    owner.equals(className) &&
+                                    fields.contains(new Member(name, Type.getType(descriptor)))
+                            ) {
+                                visitInsn(descriptor.equals("J") || descriptor.equals("D") ? Opcodes.POP2 : Opcodes.POP);
+                                return;
+                            }
+                            super.visitFieldInsn(opcode, owner, name, descriptor);
+                        }
+                    };
+                }
+                return super.visitMethod(access, name, descriptor, signature, exceptions);
             }
         };
     }
