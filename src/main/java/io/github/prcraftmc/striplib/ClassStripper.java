@@ -2,6 +2,7 @@ package io.github.prcraftmc.striplib;
 
 import org.objectweb.asm.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.invoke.LambdaMetafactory;
 import java.util.*;
 import java.util.function.Consumer;
@@ -239,11 +240,11 @@ public class ClassStripper extends ClassVisitor {
         private Builder() {
         }
 
-        public Builder annotation(String environment, Class<?> annotation) {
+        public Builder annotation(String environment, Class<? extends Annotation> annotation) {
             return annotation(environment, annotation, null);
         }
 
-        public Builder annotation(String environment, Class<?> annotation, String stripLambdasKey) {
+        public Builder annotation(String environment, Class<? extends Annotation> annotation, String stripLambdasKey) {
             return annotation(environment, Type.getType(annotation), stripLambdasKey);
         }
 
