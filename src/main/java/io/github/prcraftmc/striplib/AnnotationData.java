@@ -10,9 +10,9 @@ class AnnotationData {
     final String stripLambdasKey;
     final boolean defaultStripLambdas;
 
-    AnnotationData(String environment, Class<?> annotation, String stripLambdasKey, boolean defaultStripLambdas) {
+    AnnotationData(String environment, Type annotation, String stripLambdasKey, boolean defaultStripLambdas) {
         this.environment = Objects.requireNonNull(environment, "environment");
-        this.annotation = Type.getType(annotation);
+        this.annotation = Objects.requireNonNull(annotation, "annotation");
         this.stripLambdasKey = stripLambdasKey;
         this.defaultStripLambdas = defaultStripLambdas;
     }

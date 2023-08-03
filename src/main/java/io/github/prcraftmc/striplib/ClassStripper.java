@@ -219,6 +219,14 @@ public class ClassStripper extends ClassVisitor {
         }
 
         public Builder annotation(String environment, Class<?> annotation, String stripLambdasKey) {
+            return annotation(environment, Type.getType(annotation), stripLambdasKey);
+        }
+
+        public Builder annotation(String environment, Type annotation) {
+            return annotation(environment, annotation, null);
+        }
+
+        public Builder annotation(String environment, Type annotation, String stripLambdasKey) {
             annotations.add(new AnnotationData(environment, annotation, stripLambdasKey, defaultStripLambdas));
             return this;
         }
