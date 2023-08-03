@@ -29,6 +29,11 @@ public class StripLibTest {
     }
 
     @Test
+    public void field() {
+        performTest("field", true, true);
+    }
+
+    @Test
     public void entire() {
         assertTrue(FACTORY.build("server")
             .calcStripData(new ClassReader(read("io/github/prcraftmc/striplib/test/entire/Input")), 0)
