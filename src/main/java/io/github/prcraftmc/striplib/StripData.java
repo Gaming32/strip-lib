@@ -23,7 +23,7 @@ public class StripData {
     }
 
     public boolean isEmpty() {
-        return !entireClass && methods.isEmpty() && fields.isEmpty();
+        return !entireClass && fields.isEmpty() && methods.isEmpty() && interfaces.isEmpty();
     }
 
     public boolean stripEntireClass() {

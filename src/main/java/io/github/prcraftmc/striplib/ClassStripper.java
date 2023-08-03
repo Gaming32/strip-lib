@@ -195,6 +195,13 @@ public class ClassStripper extends ClassVisitor {
         return stripEntireClass;
     }
 
+    public boolean stripNothing() {
+        if (!complete) {
+            throw new IllegalStateException("Cannot call stripEntireClass() on an incomplete ClassStripper");
+        }
+        return !stripEntireClass && stripFields.isEmpty() && stripMethods.isEmpty() && stripInterfaces.isEmpty();
+    }
+
     public StripData getResult() {
         if (!complete) {
             throw new IllegalStateException("Cannot call getResult() on an incomplete ClassStripper");
