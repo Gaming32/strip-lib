@@ -33,10 +33,7 @@ public class StripLibTest {
         final ClassReader reader = new ClassReader(read("io/github/prcraftmc/striplib/test/entire/Input"));
         final ClassStripper stripper = FACTORY.build("server");
         reader.accept(stripper, 0);
-        while (stripper.needsLambdaStripping()) {
-            reader.accept(stripper.findLambdasToStrip(), 0);
-        }
-        assertTrue(stripper.getResult().stripEntireClass());
+        assertTrue(stripper.stripEntireClass());
     }
 
     private void performTest(String name, boolean client, boolean server) {

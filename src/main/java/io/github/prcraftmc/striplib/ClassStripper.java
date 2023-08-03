@@ -186,6 +186,13 @@ public class ClassStripper extends ClassVisitor {
         };
     }
 
+    public boolean stripEntireClass() {
+        if (!complete) {
+            throw new IllegalStateException("Cannot call stripEntireClass() on an incomplete ClassStripper");
+        }
+        return stripEntireClass;
+    }
+
     public StripData getResult() {
         if (!complete) {
             throw new IllegalStateException("Cannot call getResult() on an incomplete ClassStripper");
