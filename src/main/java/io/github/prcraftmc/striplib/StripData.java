@@ -90,13 +90,13 @@ public class StripData {
                         @Override
                         public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
                             if (
-                                opcode == Opcodes.PUTFIELD &&
+                                (opcode == Opcodes.PUTFIELD || opcode == Opcodes.PUTSTATIC) &&
                                     owner.equals(className) &&
                                     fields.contains(new Member(name, Type.getType(descriptor)))
                             ) {
                                 visitInsn(descriptor.equals("J") || descriptor.equals("D") ? Opcodes.POP2 : Opcodes.POP);
-                                visitInsn(Opcodes.POP); // this
-                                visitInsn(Opcodes.NOP); // Line the bytecode up how it was before
+                                visitInsn(opcode == Opcodes.PUTFIELD ? Opcodes.POP : Opcodes.NOP);
+                                visitInsn(Opcodes.NOP);
                                 return;
                             }
                             super.visitFieldInsn(opcode, owner, name, descriptor);
