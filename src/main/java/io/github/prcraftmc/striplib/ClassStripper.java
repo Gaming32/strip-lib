@@ -4,6 +4,7 @@ import org.objectweb.asm.*;
 
 import java.lang.invoke.LambdaMetafactory;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -201,6 +202,30 @@ public class ClassStripper extends ClassVisitor {
             throw new IllegalStateException("Must visit class with findLambdasToStrip() while needsLambdaStripping() returns true");
         }
         return new StripData(stripEntireClass, stripFields, stripMethods, stripInterfaces, annotations.keySet());
+    }
+
+    public StripData calcStripData(ClassReader reader, int parsingOptions) {
+        return calcStripData(v -> reader.accept(v, parsingOptions));
+    }
+
+    public StripData calcStripData(Consumer<ClassVisitor> provider) {
+        provider.accept(this);
+        while (needsLambdaStripping()) {
+            provider.accept(findLambdasToStrip());
+        }
+        return getResult();
+    }
+
+    public ClassVisitor strip(ClassReader reader, int parsingOptions, ClassVisitor output) {
+        return strip(v -> reader.accept(v, parsingOptions), output);
+    }
+
+    public ClassVisitor strip(Consumer<ClassVisitor> provider, ClassVisitor output) {
+        final StripData data = calcStripData(provider);
+        if (!data.stripEntireClass()) {
+            provider.accept(data.visitor(output));
+        }
+        return output;
     }
 
     public static Builder builder() {

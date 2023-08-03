@@ -30,10 +30,10 @@ public class StripLibTest {
 
     @Test
     public void entire() {
-        final ClassReader reader = new ClassReader(read("io/github/prcraftmc/striplib/test/entire/Input"));
-        final ClassStripper stripper = FACTORY.build("server");
-        reader.accept(stripper, 0);
-        assertTrue(stripper.stripEntireClass());
+        assertTrue(FACTORY.build("server")
+            .calcStripData(new ClassReader(read("io/github/prcraftmc/striplib/test/entire/Input")), 0)
+            .stripEntireClass()
+        );
     }
 
     private void performTest(String name, boolean client, boolean server) {
@@ -48,14 +48,8 @@ public class StripLibTest {
     }
 
     private void performTestInEnv(String packagePath, ClassReader reader, String env, String outputPath) {
-        final ClassStripper stripper = FACTORY.build(env);
-        reader.accept(stripper, 0);
-        while (stripper.needsLambdaStripping()) {
-            reader.accept(stripper.findLambdasToStrip(), 0);
-        }
-
         final StringWriter testOutput = new StringWriter();
-        reader.accept(stripper.getResult().visitor(new TraceClassVisitor(new PrintWriter(testOutput))), 0);
+        FACTORY.build(env).strip(reader, 0, new TraceClassVisitor(new PrintWriter(testOutput)));
 
         final String expectOutput = becomeInput(packagePath, outputPath);
         assertEquals(expectOutput, testOutput.toString());
