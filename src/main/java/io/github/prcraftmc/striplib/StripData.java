@@ -95,8 +95,9 @@ public class StripData {
                                     fields.contains(new Member(name, Type.getType(descriptor)))
                             ) {
                                 visitInsn(descriptor.equals("J") || descriptor.equals("D") ? Opcodes.POP2 : Opcodes.POP);
-                                visitInsn(opcode == Opcodes.PUTFIELD ? Opcodes.POP : Opcodes.NOP);
-                                visitInsn(Opcodes.NOP);
+                                if (opcode == Opcodes.PUTFIELD) {
+                                    visitInsn(Opcodes.POP); // Pop "this"
+                                }
                                 return;
                             }
                             super.visitFieldInsn(opcode, owner, name, descriptor);
